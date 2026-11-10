@@ -2,16 +2,26 @@
 
 [中文版](README_CN.md)
 
+> [!IMPORTANT]
+> This repository is archived and receives no further updates. Upstream now
+> publishes AArch64 packages for Arch, Debian/Ubuntu and Fedora, and is expected
+> to cover the remaining distributions (openSUSE, Alpine and NixOS). Install
+> Denial through upstream's
+> [installation instructions](https://github.com/denialwm/denial/blob/main/docs/INSTALL.md).
+> The existing releases and patches remain available for reference.
+
 ARM64 patches for the `tools/denial-pc` build system of
 [Denial](https://github.com/denialwm/denial), a Flutter-native Wayland
 compositor; a GitHub Actions workflow that builds the patched source tree on an
 ARM64 runner and packages the result for five distributions; and Nix packaging
 ported from upstream.
 
-Upstream `denial-pc` is configured to build for x86-64, so its build system does
-not run natively on ARM64. Denial itself supports ARM64 source builds; what is
-missing upstream is a native build path in that script and a release pipeline
-that publishes ARM64 binaries. This repository supplies both.
+Upstream builds its AArch64 packages by cross-compiling from an x86-64 host,
+and from `v0.6.1` on publishes signed AArch64 packages for Arch, Debian/Ubuntu
+and Fedora. Upstream publishes no AArch64 packages for openSUSE or Alpine, and
+no AArch64 Nix packages: its flake remains `x86_64-linux`-only. This repository
+supplies a natively built, patched ARM64 tree, packages for the targets upstream
+leaves out, and an AArch64 Nix flake with its own binary cache.
 
 The patch set was developed inside
 [fedora-sheng](https://github.com/mumuxiao722/fedora-sheng), where it lived
@@ -22,16 +32,24 @@ fedora-sheng.
 
 ## Status
 
-Denial release: `v0.5.1`
-
-Packages are published on the
+Archived. The last release built here is Denial `v0.5.1`; it remains available
+on the
 [Releases page](https://github.com/mumuxiao722/denial-arm64-builder/releases).
+
+Upstream status: `v0.6.1` and later publish AArch64 packages for Arch,
+Debian 13 / Ubuntu 24.04 and Fedora 44; `v0.6.2` is the latest, a public beta.
+openSUSE and Alpine have no published AArch64 packages, and upstream's Nix flake
+remains `x86_64-linux` only.
 
 ## Installing
 
 Each target provides three packages: `denial`, `denial-flutter-engine` and
 `denial-plugin-manager`. `denial-plugin-manager` is optional and installs Denial
 plugins.
+
+The packages below are built by this repository. Upstream's own AArch64 packages
+for Arch, Debian/Ubuntu and Fedora are served from its signed repositories
+(`install.sh`); openSUSE, Alpine and NixOS are not covered upstream.
 
 ```sh
 # Debian / Ubuntu
@@ -144,8 +162,9 @@ repository.
 `nix/` is a copy of upstream's Nix packaging, committed here rather than
 imported from the flake input. The flake pins Denial `v0.5.1` and a `plugins`
 input. Upstream's copy builds on `x86_64-linux` only and carries no AArch64
-engine hash; `nix/flutter-engine-lock.json` carries both hashes an AArch64
-build requires, one for the Dart SDK and one for the engine source closure.
+engine hash, so upstream publishes no AArch64 Nix packages;
+`nix/flutter-engine-lock.json` carries both hashes an AArch64 build requires,
+one for the Dart SDK and one for the engine source closure.
 
 | Output | Contents |
 |---|---|
@@ -200,7 +219,7 @@ Add the binary cache:
 }
 ```
 
-Leave `denial.cachix.org` out: it is not an AArch64 cache, and a substituter
+Leave `denial.cachix.org` out: it carries no AArch64 closures, and a substituter
 that can only miss costs a lookup on every path.
 
 ### On non-NixOS with the Nix package manager

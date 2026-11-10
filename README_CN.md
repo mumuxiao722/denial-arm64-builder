@@ -2,14 +2,22 @@
 
 [English](README.md)
 
+> [!IMPORTANT]
+> 本仓库已归档，不再更新。上游现已发布 Arch、Debian/Ubuntu 与 Fedora 的 AArch64 包，
+> 其余发行版（openSUSE、Alpine、NixOS）预计也会由上游覆盖。请按上游的
+> [安装文档](https://github.com/denialwm/denial/blob/main/docs/INSTALL.md) 安装 Denial。
+> 现有 release 与补丁保留供参考。
+
 [Denial](https://github.com/denialwm/denial) 是一个基于 Flutter 的 Wayland 合成器。
 本仓库提供其 `tools/denial-pc` 构建系统的 ARM64 补丁；一个在 ARM64 runner 上构建打过
 补丁的源码树、并把结果打包给五个发行版的 GitHub Actions 工作流；以及移植自上游的
 Nix 打包。
 
-上游 `denial-pc` 按 x86-64 配置，其构建系统无法在 ARM64 上原生运行。Denial 本身支持
-ARM64 源码构建；上游缺少的是该脚本中的原生构建路径，以及发布 ARM64 二进制的流水线。
-本仓库补齐这两项。
+上游的 AArch64 包由 x86-64 主机交叉编译构建，并从 `v0.6.1` 起发布 Arch、
+Debian/Ubuntu 与 Fedora 的 AArch64 签名包。上游仍未发布 openSUSE 与 Alpine 的
+AArch64 包，也没有 AArch64 的 Nix 包：其 flake 仍只支持 `x86_64-linux`。本仓库提供
+原生构建的 ARM64 补丁树、上游未覆盖目标的安装包，以及带独立二进制缓存的 AArch64 Nix
+flake。
 
 该补丁集最初在 [fedora-sheng](https://github.com/mumuxiao722/fedora-sheng) 中开发，
 当时位于 `.github/denial-arm64/` 目录下。现在它已独立出来，因此可以在运行受支持发行版的
@@ -18,15 +26,20 @@ ARM64 设备上，在满足上游宿主要求的前提下，使用该补丁集�
 
 ## 状态
 
-Denial 版本：`v0.5.1`
-
-安装包发布在
+已归档。此处最后构建的 Denial 版本为 `v0.5.1`，安装包仍保留在
 [Releases 页面](https://github.com/mumuxiao722/denial-arm64-builder/releases)。
+
+上游状态：`v0.6.1` 及之后的版本为 Arch、Debian 13 / Ubuntu 24.04 与 Fedora 44
+发布 AArch64 包；最新为 `v0.6.2`，属公开测试版。openSUSE 与 Alpine 没有已发布的
+AArch64 包，上游的 Nix flake 仍只支持 `x86_64-linux`。
 
 ## 安装
 
 每个目标提供三个包：`denial`、`denial-flutter-engine` 和 `denial-plugin-manager`。
 `denial-plugin-manager` 为可选组件，用于安装 Denial 插件。
+
+下面这些包由本仓库构建。上游自己的 Arch、Debian/Ubuntu 与 Fedora AArch64 包通过其
+签名仓库（`install.sh`）提供；openSUSE、Alpine 与 NixOS 上游未覆盖。
 
 ```sh
 # Debian / Ubuntu
@@ -128,8 +141,9 @@ GitHub release。这些产物是构建输出，不是软件源。
 
 `nix/` 是上游 Nix 打包的一份副本，在此提交，而非从 flake 输入导入。flake 固定
 Denial `v0.5.1`，并另有一个 `plugins` 输入。上游那份仅在 `x86_64-linux` 上构建，
-且没有 AArch64 引擎哈希；`nix/flutter-engine-lock.json` 记录了 AArch64 构建所需的
-两个哈希，一个对应 Dart SDK，一个对应引擎源码闭包。
+且没有 AArch64 引擎哈希，因此上游不发布 AArch64 Nix 包；
+`nix/flutter-engine-lock.json` 记录了 AArch64 构建所需的两个哈希，一个对应 Dart SDK，
+一个对应引擎源码闭包。
 
 | 输出 | 内容 |
 |---|---|
@@ -183,7 +197,7 @@ Denial `v0.5.1`，并另有一个 `plugins` 输入。上游那份仅在 `x86_64-
 }
 ```
 
-不要添加 `denial.cachix.org`：它不是 AArch64 缓存，一个永远命不中的 substituter 只会在
+不要添加 `denial.cachix.org`：它没有 AArch64 闭包，一个永远命不中的 substituter 只会在
 每个路径上多一次查询。
 
 ### 在非 NixOS 上使用 Nix 包管理器及 Flake
